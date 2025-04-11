@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
+import '../theme/app_theme.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -9,197 +11,281 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends State<OnboardingScreen>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
+  late AnimationController _animationController;
   int _currentPage = 0;
 
   final List<OnboardingContent> _contents = [
     OnboardingContent(
-      title: "Welcome to Os Motto Hook Up",
+      title: "Welcome to OS App",
       description:
           "Find your vibe, keep your privacy. Connect with like-minded people in Nigeria.",
-      image: Icons.people_outline,
+      animation: 'assets/animations/welcome.json',
     ),
     OnboardingContent(
       title: "Privacy First",
       description:
           "No public photos – your image stays yours. Share privately in DMs when you're ready.",
-      image: Icons.lock_outline,
+      animation: 'assets/animations/privacy.json',
     ),
     OnboardingContent(
       title: "Local Connections",
       description:
           "Match by City & State – from Lagos to Kano, Jos to Port Harcourt.",
-      image: Icons.location_on_outlined,
+      animation: 'assets/animations/location.json',
     ),
     OnboardingContent(
       title: "You're in Control",
       description: "Full control over your privacy – vibe first, reveal later.",
-      image: Icons.security,
+      animation: 'assets/animations/control.json',
     ),
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              flex: 3,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _contents.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _contents[index].image,
-                          size: 120,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        const SizedBox(height: 40),
-                        Text(
-                          _contents[index].title,
-                          style: Theme.of(context).textTheme.headlineMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          _contents[index].description,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppTheme.beetleBlack,
+              AppTheme.beetleBlack.withOpacity(0.8),
+              AppTheme.primaryPurple.withOpacity(0.3),
+              AppTheme.beetleBlack,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                flex: 3,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _contents.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                    _animationController.reset();
+                    _animationController.forward();
+                  },
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 40),
+                      decoration: BoxDecoration(
+                        color: AppTheme.beetleBlack.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryPurple.withOpacity(0.2),
+                            blurRadius: 15,
+                            spreadRadius: 5,
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 200,
+                            width: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      AppTheme.primaryPurple.withOpacity(0.3),
+                                  blurRadius: 20,
+                                  spreadRadius: 5,
+                                )
+                              ],
+                            ),
+                            child: Lottie.asset(
+                              _contents[index].animation,
+                              height: 200,
+                              width: 200,
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                          const SizedBox(height: 40),
+                          FadeTransition(
+                            opacity: _animationController,
+                            child: Text(
+                              _contents[index].title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                    color: AppTheme.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          FadeTransition(
+                            opacity: _animationController,
+                            child: Text(
+                              _contents[index].description,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: AppTheme.accentPurple,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      _contents.length,
-                      (index) => buildDot(index),
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        _contents.length,
+                        (index) => buildDot(index),
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 20),
-                    child: Row(
-                      children: [
-                        if (_currentPage > 0)
-                          TextButton(
-                            onPressed: () {
-                              _pageController.previousPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                            child: const Text("BACK"),
-                          ),
-                        const Spacer(),
-                        _currentPage == _contents.length - 1
-                            ? Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const LoginScreen(),
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: 12,
-                                      ),
+                    const SizedBox(height: 30),
+                    _currentPage == _contents.length - 1
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginScreen(),
                                     ),
-                                    child: const Text("LOGIN"),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                                  const SizedBox(width: 10),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const SignupScreen(),
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: 12,
-                                      ),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30, vertical: 15),
+                                ),
+                                child: const Text(
+                                  "Sign In",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SignupScreen(),
                                     ),
-                                    child: const Text("SIGNUP"),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                                ],
-                              )
-                            : ElevatedButton(
+                                  backgroundColor: Colors.transparent,
+                                  elevation: 0,
+                                  side: const BorderSide(
+                                      color: AppTheme.primaryPurple, width: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30, vertical: 15),
+                                ),
+                                child: const Text(
+                                  "Sign Up",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: AppTheme.accentPurple),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  _pageController.animateToPage(
+                                    _contents.length - 1,
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeInOut,
+                                  );
+                                },
+                                child: const Text(
+                                  "Skip",
+                                  style:
+                                      TextStyle(color: AppTheme.accentPurple),
+                                ),
+                              ),
+                              ElevatedButton(
                                 onPressed: () {
                                   _pageController.nextPage(
-                                    duration: const Duration(milliseconds: 300),
+                                    duration: const Duration(milliseconds: 500),
                                     curve: Curves.easeInOut,
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 30,
-                                    vertical: 12,
-                                  ),
+                                  shape: const CircleBorder(),
+                                  padding: const EdgeInsets.all(20),
                                 ),
-                                child: const Text("NEXT"),
+                                child: const Icon(
+                                  Icons.arrow_forward,
+                                  color: AppTheme.white,
+                                ),
                               ),
-                      ],
-                    ),
-                  ),
-                ],
+                            ],
+                          ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget buildDot(int index) {
-    return Container(
-      height: 10,
-      width: _currentPage == index ? 25 : 10,
-      margin: const EdgeInsets.only(right: 5),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(right: 8),
+      height: 8,
+      width: _currentPage == index ? 24 : 8,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
         color: _currentPage == index
-            ? Theme.of(context).primaryColor
-            : Colors.grey.withOpacity(0.5),
+            ? AppTheme.primaryPurple
+            : AppTheme.accentPurple.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(10),
       ),
     );
   }
@@ -208,11 +294,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class OnboardingContent {
   final String title;
   final String description;
-  final IconData image;
+  final String animation;
 
   OnboardingContent({
     required this.title,
     required this.description,
-    required this.image,
+    required this.animation,
   });
 }

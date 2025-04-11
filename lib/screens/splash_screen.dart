@@ -4,7 +4,9 @@ import '../screens/onboarding_screen.dart';
 import '../services/firebase_checker.dart';
 import '../services/auth_service.dart';
 import '../services/demo_mode_service.dart';
+import '../theme/app_theme.dart';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,21 +15,46 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   String _statusMessage = "Initializing...";
   bool _hasError = false;
   bool _showDemoOption = false;
+  late AnimationController _animationController;
+  late Animation<double> _fadeInAnimation;
 
   @override
   void initState() {
     super.initState();
+
+    // Animation setup
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeIn,
+      ),
+    );
+
+    _animationController.forward();
+
     _initializeApp();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _initializeApp() async {
     try {
       // Wait for a minimum time to display splash screen
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 2));
 
       // Check if already in demo mode
       if (DemoModeService().isDemoMode) {
@@ -142,165 +169,164 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF8A56AC), Color(0xFFB088CF)],
+            colors: [
+              AppTheme.beetleBlack,
+              AppTheme.beetleBlack.withOpacity(0.9),
+              AppTheme.primaryPurple.withOpacity(0.4),
+              AppTheme.beetleBlack,
+            ],
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // App Logo (temporary placeholder)
-            Container(
-              height: 120,
-              width: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  )
-                ],
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.favorite,
-                  size: 60,
-                  color: Theme.of(context).primaryColor,
+        child: FadeTransition(
+          opacity: _fadeInAnimation,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // App Logo with pulsating effect
+              Container(
+                height: 150,
+                width: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryPurple.withOpacity(0.4),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    )
+                  ],
                 ),
-              ),
-            ),
-            const SizedBox(height: 30),
-            // App Name
-            const Text(
-              "OS MOTTO",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-            const Text(
-              "HOOK UP",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-            const SizedBox(height: 15),
-            // Tagline
-            const Text(
-              "Find your vibe, keep your privacy",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            const SizedBox(height: 30),
-            // Status Message
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Text(
-                _statusMessage,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: _hasError ? Colors.red.shade100 : Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Loading indicator or buttons
-            if (_hasError && _showDemoOption) ...[
-              Column(
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Theme.of(context).primaryColor,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 12,
-                      ),
-                    ),
-                    onPressed: _continueToDemoMode,
-                    child: const Text("Continue in Demo Mode"),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Theme.of(context).primaryColor,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 12,
-                      ),
-                    ),
-                    onPressed: () {
-                      if (mounted) {
-                        setState(() {
-                          _hasError = false;
-                          _statusMessage = "Retrying...";
-                        });
-                        _initializeApp();
-                      }
-                    },
-                    child: const Text("Retry"),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () => SystemNavigator.pop(),
-                    child: const Text(
-                      "Exit App",
-                      style: TextStyle(color: Colors.white),
+                child: ClipOval(
+                  child: Container(
+                    color: AppTheme.beetleBlack,
+                    padding: const EdgeInsets.all(15),
+                    child: Image.asset(
+                      'assets/images/542ae11af98e0c99d5aeb4dc6a12f643.png',
+                      fit: BoxFit.cover,
                     ),
                   ),
-                ],
+                ),
               ),
-            ] else if (_hasError) ...[
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Theme.of(context).primaryColor,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 12,
+              const SizedBox(height: 40),
+              // App Name
+              ShaderMask(
+                shaderCallback: (bounds) => LinearGradient(
+                  colors: [
+                    AppTheme.primaryPurple,
+                    AppTheme.accentPurple,
+                    Colors.white.withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+                child: const Text(
+                  "OS APP",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 3,
                   ),
                 ),
-                onPressed: () {
-                  if (mounted) {
-                    setState(() {
-                      _hasError = false;
-                      _statusMessage = "Retrying...";
-                    });
-                    _initializeApp();
-                  }
-                },
-                child: const Text("Retry"),
               ),
               const SizedBox(height: 20),
-              TextButton(
-                onPressed: () => SystemNavigator.pop(),
-                child: const Text(
-                  "Exit App",
-                  style: TextStyle(color: Colors.white),
+              // Tagline
+              Text(
+                "Find your vibe, keep your privacy",
+                style: TextStyle(
+                  color: AppTheme.accentPurple,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-            ] else ...[
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              const SizedBox(height: 50),
+              // Status Message
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Text(
+                  _statusMessage,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color:
+                        _hasError ? Colors.red.shade300 : AppTheme.accentPurple,
+                    fontSize: 14,
+                  ),
+                ),
               ),
+              const SizedBox(height: 30),
+              // Loading indicator or buttons
+              if (!_hasError)
+                Container(
+                  width: 40,
+                  height: 40,
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: AppTheme.beetleBlack.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryPurple.withOpacity(0.2),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      )
+                    ],
+                  ),
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryPurple,
+                    strokeWidth: 3,
+                  ),
+                ),
+              if (_hasError && _showDemoOption) ...[
+                Column(
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryPurple,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 15,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 5,
+                      ),
+                      onPressed: _continueToDemoMode,
+                      child: const Text(
+                        "Continue in Demo Mode",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    TextButton(
+                      onPressed: () {
+                        if (mounted) {
+                          setState(() {
+                            _hasError = false;
+                            _showDemoOption = false;
+                            _statusMessage = "Retrying...";
+                          });
+                          _initializeApp();
+                        }
+                      },
+                      child: Text(
+                        "Retry Connection",
+                        style: TextStyle(
+                          color: AppTheme.accentPurple,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

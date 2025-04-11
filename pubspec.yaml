@@ -1,4 +1,4 @@
-name: os_motto_hookup
+name: os_app
 description: A private Nigerian meet-up app where real connections happen without putting your face out there.
 publish_to: 'none'
 version: 1.0.0+1
@@ -23,6 +23,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   http: ^1.1.0
   intl: ^0.18.1
+  lottie: ^2.7.0  # Added for animations
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +34,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/animations/  # Added for animations
   # fonts:
   #   - family: Poppins
   #     fonts:
