@@ -16,18 +16,19 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _stateController = TextEditingController();
-  
+
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  
+
   String? _selectedGender;
   final List<String> _genderOptions = ['Male', 'Female', 'Other'];
-  
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -47,11 +48,11 @@ class _SignupScreenState extends State<SignupScreen> {
         );
         return;
       }
-      
+
       setState(() {
         _isLoading = true;
       });
-      
+
       try {
         // Implement actual signup logic with AuthService
         // For now, just navigate to home screen after a delay
@@ -97,14 +98,14 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    "Join Os Motto Hook Up and connect with others while keeping your privacy.",
+                    "Join OS App and connect with others while keeping your privacy.",
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 30),
-                  
+
                   // Full Name Field
                   CustomTextField(
                     controller: _nameController,
@@ -118,7 +119,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Email Field
                   CustomTextField(
                     controller: _emailController,
@@ -136,13 +137,14 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Gender Dropdown
                   DropdownButtonFormField<String>(
                     value: _selectedGender,
                     decoration: InputDecoration(
                       hintText: "Select Gender",
-                      prefixIcon: const Icon(Icons.people_outline, color: Colors.grey),
+                      prefixIcon:
+                          const Icon(Icons.people_outline, color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -153,11 +155,13 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor, width: 2),
                       ),
                       fillColor: Colors.white,
                       filled: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 16),
                     ),
                     items: _genderOptions.map((String gender) {
                       return DropdownMenuItem<String>(
@@ -178,7 +182,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // City Field
                   CustomTextField(
                     controller: _cityController,
@@ -192,7 +196,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // State Field
                   CustomTextField(
                     controller: _stateController,
@@ -206,7 +210,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Password Field
                   CustomTextField(
                     controller: _passwordController,
@@ -215,7 +219,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     obscureText: _obscurePassword,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey,
                       ),
                       onPressed: () {
@@ -235,7 +241,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Confirm Password Field
                   CustomTextField(
                     controller: _confirmPasswordController,
@@ -244,7 +250,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     obscureText: _obscureConfirmPassword,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                        _obscureConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey,
                       ),
                       onPressed: () {
@@ -264,7 +272,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   ),
                   const SizedBox(height: 30),
-                  
+
                   // Privacy Policy
                   const Text(
                     "By signing up, you agree to our Terms of Service and Privacy Policy.",
@@ -275,7 +283,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Signup Button
                   CustomButton(
                     text: "SIGN UP",
@@ -283,7 +291,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     onPressed: _isLoading ? null : _signup,
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Login Link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -303,7 +311,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         },
                         style: TextButton.styleFrom(
                           minimumSize: Size.zero,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: Text(
@@ -324,4 +333,4 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
-} 
+}

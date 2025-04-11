@@ -1,26 +1,26 @@
 #!/bin/bash
 
 echo "===========================================" 
-echo "Firebase Setup Instructions for 'Os Motto Hookup'" 
+echo "Firebase Setup Instructions for 'OS App'" 
 echo "===========================================" 
 echo
 
 echo "STEP 1: Create a Firebase project"
 echo "1. Go to https://console.firebase.google.com/"
-echo "2. Click 'Add project' and name it 'Os Motto Hookup'"
+echo "2. Click 'Add project' and name it 'OS App'"
 echo "3. Follow the setup wizard (disable Google Analytics if not needed)"
 echo
 
 echo "STEP 2: Register your iOS app"
 echo "1. In Firebase console, click 'iOS' icon to add an iOS app"
-echo "2. Enter Bundle ID: com.osmotto.hookup (or your custom bundle ID from Info.plist)"
+echo "2. Enter Bundle ID: com.osapp.app (or your custom bundle ID from Info.plist)"
 echo "3. Download the GoogleService-Info.plist file"
 echo "4. Place it in the ios/Runner directory of your Flutter project"
 echo
 
 echo "STEP 3: Register your Android app"
 echo "1. In Firebase console, click 'Android' icon to add an Android app"
-echo "2. Enter package name: com.osmotto.hookup (or check your AndroidManifest.xml file)"
+echo "2. Enter package name: com.osapp.app (or check your AndroidManifest.xml file)"
 echo "3. Download the google-services.json file"
 echo "4. Place it in the android/app directory of your Flutter project"
 echo

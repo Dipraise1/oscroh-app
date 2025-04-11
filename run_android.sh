@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "===========================================" 
-echo "Running Os Motto Hookup on Android" 
+echo "Running OS App on Android" 
 echo "===========================================" 
 echo
 

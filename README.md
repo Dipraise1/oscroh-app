@@ -1,17 +1,17 @@
-# Os Motto Hook Up
+# OS App
 
 A private Nigerian meet-up app built with Flutter. Find your vibe, keep your privacy.
 
 ## Description
 
-Os Motto Hook Up is a dating/social app designed specifically for Nigerians with privacy as a core feature:
+OS App is a dating/social app designed specifically for Nigerians with privacy as a core feature:
 
 - **No public photos** – your image stays yours
 - **Private DMs** for image sharing when you're comfortable
 - **Match by City & State** – from Lagos to Kano, Jos to Port Harcourt
 - **Full privacy control** – vibe first, reveal later
 
-Whether you're seeking a serious relationship, casual friendship, or just someone to chat with, Os Motto Hook Up helps you find the right people near you without the pressure.
+Whether you're seeking a serious relationship, casual friendship, or just someone to chat with, OS App helps you find the right people near you without the pressure.
 
 ## Features
 
@@ -40,8 +40,8 @@ Before running the app, you need to set up Firebase:
 
 1. Create a new Firebase project at https://console.firebase.google.com/
 2. Add iOS and Android applications to your Firebase project:
-   - Android package name: `com.osmotto.hookup`
-   - iOS bundle ID: `com.osmotto.hookup`
+   - Android package name: `com.osapp.app`
+   - iOS bundle ID: `com.osapp.app`
 
 3. Download the Firebase configuration files:
    - Download `google-services.json` and place it in the `android/app/` directory
@@ -105,8 +105,8 @@ service firebase.storage {
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/os_motto_hookup.git
-   cd os_motto_hookup
+   git clone https://github.com/Dipraise1/oscroh-app.git
+   cd os_app
    ```
 
 2. Install dependencies:
@@ -157,4 +157,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Your Name - [@yourusername](https://twitter.com/yourusername) - email@example.com
 
-Project Link: [https://github.com/yourusername/os_motto_hookup](https://github.com/yourusername/os_motto_hookup) # oscroh-app
+Project Link: [https://github.com/Dipraise1/oscroh-app](https://github.com/Dipraise1/oscroh-app) # oscroh-app
