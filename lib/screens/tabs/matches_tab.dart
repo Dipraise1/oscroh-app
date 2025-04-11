@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/user_model.dart';
+import '../../services/location_matcher_service.dart';
 import '../../widgets/profile_card.dart';
+import '../../theme/app_theme.dart';
 
 class MatchesTab extends StatefulWidget {
   const MatchesTab({super.key});
@@ -9,9 +11,10 @@ class MatchesTab extends StatefulWidget {
   State<MatchesTab> createState() => _MatchesTabState();
 }
 
-class _MatchesTabState extends State<MatchesTab> {
-  // Dummy list of matched users
-  final List<User> _matches = [
+class _MatchesTabState extends State<MatchesTab>
+    with AutomaticKeepAliveClientMixin {
+  // List of all potential matches (in a real app, this would come from a service)
+  final List<User> _potentialMatches = [
     User(
       id: '3',
       username: 'Fatima',
@@ -36,10 +39,87 @@ class _MatchesTabState extends State<MatchesTab> {
       interests: ['Dancing', 'Healthcare', 'Volunteering', 'Cooking'],
       profileImage: null,
     ),
+    User(
+      id: '9',
+      username: 'Olusegun',
+      age: 33,
+      gender: 'Male',
+      city: 'Ibadan',
+      state: 'Oyo',
+      bio:
+          'Professor of Literature. Loves poetry, jazz, and philosophical discussions.',
+      interests: ['Literature', 'Music', 'Philosophy', 'Teaching'],
+      profileImage: null,
+      isVerified: true,
+    ),
+    User(
+      id: '10',
+      username: 'Chinwe',
+      age: 24,
+      gender: 'Female',
+      city: 'Onitsha',
+      state: 'Anambra',
+      bio:
+          'Digital artist and animator. Creating beautiful worlds through art.',
+      interests: ['Art', 'Animation', 'Games', 'Technology'],
+      profileImage: null,
+    ),
   ];
+
+  late User _currentUser;
+  late List<User> _matches = [];
+  bool _isLoading = true;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Simulating current user (in a real app, this would be fetched from auth service)
+    _currentUser = User(
+      id: 'current_user',
+      username: 'You',
+      age: 30,
+      gender: 'Female',
+      city: 'Lagos',
+      state: 'Lagos',
+      bio: 'Looking for connections nearby',
+      interests: ['Music', 'Sports', 'Technology', 'Travel'],
+    );
+
+    // Simulate fetching matches from a database
+    _fetchMatches();
+  }
+
+  Future<void> _fetchMatches() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    setState(() {
+      // Filter matches by location first
+      _matches = LocationMatcherService.filterUsersByLocation(
+          _potentialMatches, _currentUser,
+          maxDistance: 2 // Include users from neighboring states
+          );
+
+      // Sort by proximity
+      _matches =
+          LocationMatcherService.sortUsersByProximity(_matches, _currentUser);
+
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -53,18 +133,53 @@ class _MatchesTabState extends State<MatchesTab> {
                 ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'People who have liked you back',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 14,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'People in your state and nearby who might be a good match',
+                  style: TextStyle(
+                    color: AppTheme.accentPurple,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              if (!_isLoading)
+                IconButton(
+                  onPressed: _fetchMatches,
+                  icon: const Icon(Icons.refresh, color: AppTheme.accentPurple),
+                  tooltip: 'Refresh matches',
+                ),
+            ],
           ),
           const SizedBox(height: 16),
 
           // Matches List
           Expanded(
-            child: _matches.isEmpty ? _buildEmptyState() : _buildMatchesList(),
+            child: _isLoading
+                ? _buildLoadingState()
+                : (_matches.isEmpty ? _buildEmptyState() : _buildMatchesList()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            color: AppTheme.primaryPurple,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Finding your matches...',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppTheme.accentPurple,
+            ),
           ),
         ],
       ),
@@ -75,30 +190,67 @@ class _MatchesTabState extends State<MatchesTab> {
     return ListView.builder(
       itemCount: _matches.length,
       itemBuilder: (context, index) {
+        final user = _matches[index];
+        final bool isSameState = user.state == _currentUser.state;
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
-          child: ProfileCard(
-            user: _matches[index],
-            isMatch: true,
-            onLike: () {
-              // Handle unmatch action
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content:
-                        Text('Unmatched with ${_matches[index].username}')),
-              );
-              setState(() {
-                _matches.removeAt(index);
-              });
-            },
-            onMessage: () {
-              // Handle message action
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content:
-                        Text('Starting chat with ${_matches[index].username}')),
-              );
-            },
+          child: Stack(
+            children: [
+              ProfileCard(
+                user: user,
+                isMatch: true,
+                onLike: () {
+                  // Handle unmatch action
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Unmatched with ${user.username}')),
+                  );
+                  setState(() {
+                    _matches.removeAt(index);
+                  });
+                },
+                onMessage: () {
+                  // Handle message action
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text('Starting chat with ${user.username}')),
+                  );
+                },
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isSameState
+                        ? AppTheme.primaryPurple
+                        : AppTheme.primaryPurple.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isSameState ? Icons.location_on : Icons.near_me,
+                        color: AppTheme.white,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        user.state,
+                        style: const TextStyle(
+                          color: AppTheme.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -113,36 +265,41 @@ class _MatchesTabState extends State<MatchesTab> {
           Icon(
             Icons.favorite_border,
             size: 80,
-            color: Colors.grey[400],
+            color: AppTheme.accentPurple.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'No matches yet',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
+              color: AppTheme.accentPurple,
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'When someone you like also likes you back, they will appear here',
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 16,
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              'We\'re looking for people in your area. Check back soon!',
+              style: TextStyle(
+                color: AppTheme.accentPurple,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () {
-              // Navigate to discover tab
-              Navigator.of(context).pop();
-            },
-            icon: const Icon(Icons.explore),
-            label: const Text('Discover People'),
+            onPressed: () => _fetchMatches(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Refresh Matches'),
             style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryPurple,
+              foregroundColor: AppTheme.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
           ),
         ],
