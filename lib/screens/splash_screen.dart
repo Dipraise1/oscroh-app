@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../screens/onboarding_screen.dart';
 import '../services/firebase_checker.dart';
@@ -22,6 +23,7 @@ class _SplashScreenState extends State<SplashScreen>
   bool _showDemoOption = false;
   late AnimationController _animationController;
   late Animation<double> _fadeInAnimation;
+  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
@@ -30,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Animation setup
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 2000),
     );
 
     _fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -40,7 +42,25 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _animationController.forward();
+    _pulseAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.10)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.10, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 50,
+      ),
+    ]).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.3, 1.0),
+      ),
+    );
+
+    _animationController.repeat();
 
     _initializeApp();
   }
@@ -166,9 +186,12 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Container(
         width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -186,39 +209,78 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // App Logo with pulsating effect
-              Container(
-                height: 150,
-                width: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryPurple.withOpacity(0.4),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    )
-                  ],
-                ),
-                child: ClipOval(
-                  child: Container(
-                    color: AppTheme.beetleBlack,
-                    padding: const EdgeInsets.all(15),
-                    child: Image.asset(
-                      'assets/images/542ae11af98e0c99d5aeb4dc6a12f643.png',
-                      fit: BoxFit.cover,
+              // App Logo with enhanced visual effects
+              AnimatedBuilder(
+                animation: _pulseAnimation,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _pulseAnimation.value,
+                    child: Container(
+                      height: screenSize.width * 0.4,
+                      width: screenSize.width * 0.4,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryPurple.withOpacity(0.5),
+                            blurRadius: 25,
+                            spreadRadius: 5,
+                          ),
+                          BoxShadow(
+                            color: Colors.white.withOpacity(0.1),
+                            blurRadius: 15,
+                            spreadRadius: 1,
+                            offset: const Offset(0, -5),
+                          ),
+                        ],
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppTheme.beetleBlack,
+                            AppTheme.beetleBlack.withOpacity(0.8),
+                          ],
+                        ),
+                        border: Border.all(
+                          color: AppTheme.primaryPurple.withOpacity(0.3),
+                          width: 3,
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              AppTheme.primaryPurple.withOpacity(0.15),
+                              AppTheme.beetleBlack.withOpacity(0.9),
+                            ],
+                            radius: 0.8,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: Padding(
+                            padding: const EdgeInsets.all(25),
+                            child: Image.asset(
+                              'assets/images/542ae11af98e0c99d5aeb4dc6a12f643.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
-              const SizedBox(height: 40),
-              // App Name
+              const SizedBox(height: 50),
+
+              // App Name with enhanced visual effects
               ShaderMask(
                 shaderCallback: (bounds) => LinearGradient(
                   colors: [
                     AppTheme.primaryPurple,
                     AppTheme.accentPurple,
-                    Colors.white.withOpacity(0.8),
+                    Colors.white.withOpacity(0.9),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -227,23 +289,35 @@ class _SplashScreenState extends State<SplashScreen>
                   "OS APP",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 40,
+                    fontSize: 44,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 3,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-              // Tagline
-              Text(
-                "Find your vibe, keep your privacy",
-                style: TextStyle(
-                  color: AppTheme.accentPurple,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
+
+              // Tagline with animated opacity
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  final opacity =
+                      sin(_animationController.value * 3.14) * 0.2 + 0.8;
+                  return Opacity(
+                    opacity: opacity,
+                    child: Text(
+                      "Find your vibe, keep your privacy",
+                      style: TextStyle(
+                        color: AppTheme.accentPurple,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 50),
+
               // Status Message
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -258,6 +332,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
               const SizedBox(height: 30),
+
               // Loading indicator or buttons
               if (!_hasError)
                 Container(
